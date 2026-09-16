@@ -176,28 +176,58 @@ body {
 }
 
 /* Ambient golden-green light behind the glass panels */
-body::before {
+body::before,
+body::after {
   content: '';
   position: fixed;
-  inset: -10%;
-  z-index: -1;
+  inset: -15%;
   pointer-events: none;
+}
+
+body::before {
+  z-index: -3;
   background:
-    radial-gradient(38vw 38vw at 14% 12%, var(--aurora-gold), transparent 62%),
-    radial-gradient(34vw 34vw at 86% 10%, var(--aurora-green), transparent 62%),
-    radial-gradient(42vw 42vw at 78% 86%, var(--aurora-gold), transparent 64%),
-    radial-gradient(40vw 40vw at 18% 90%, var(--aurora-green), transparent 64%),
-    radial-gradient(50vw 50vw at 50% 50%, var(--aurora-green), transparent 70%);
+    radial-gradient(38vw 38vw at calc(14% + var(--ax, 0px)) calc(12% + var(--ay, 0px)), var(--aurora-gold), transparent 62%),
+    radial-gradient(34vw 34vw at calc(86% - var(--ax, 0px) * 1.4) calc(10% + var(--ay, 0px) * 1.2), var(--aurora-green), transparent 62%),
+    radial-gradient(42vw 42vw at calc(78% - var(--ax, 0px) * 1.1) calc(86% - var(--ay, 0px) * 1.3), var(--aurora-gold), transparent 64%),
+    radial-gradient(40vw 40vw at calc(18% + var(--ax, 0px) * 1.6) calc(90% - var(--ay, 0px) * 1.1), var(--aurora-green), transparent 64%);
+}
+
+body::after {
+  z-index: -2;
+  background:
+    radial-gradient(34vw 34vw at calc(28% + var(--ay, 0px) * 1.2) calc(26% + var(--ax, 0px) * 1.2), var(--aurora-green), transparent 60%),
+    radial-gradient(30vw 30vw at calc(72% - var(--ay, 0px) * 1.1) calc(74% - var(--ax, 0px) * 1.1), var(--aurora-gold), transparent 60%),
+    radial-gradient(44vw 44vw at calc(50% + var(--ax, 0px) * 0.5) calc(50% + var(--ay, 0px) * 0.5), var(--aurora-green), transparent 70%);
+  opacity: 0.75;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  body::before { animation: aurora 26s ease-in-out infinite alternate; }
+  body::before { animation: aurora 16s ease-in-out infinite alternate; }
+  body::after  { animation: aurora2 21s ease-in-out infinite alternate; }
 }
 
 @keyframes aurora {
-  0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(-2%, 2%, 0) scale(1.06); }
-  100% { transform: translate3d(2%, -2%, 0) scale(1.03); }
+  0%   { transform: translate3d(-5%, 4%, 0) scale(1.06); }
+  50%  { transform: translate3d(5%, -6%, 0) scale(1.14); }
+  100% { transform: translate3d(-4%, 6%, 0) scale(1.09); }
+}
+
+@keyframes aurora2 {
+  0%   { transform: translate3d(6%, -5%, 0) scale(1.08); }
+  50%  { transform: translate3d(-7%, 5%, 0) scale(1.16); }
+  100% { transform: translate3d(5%, 6%, 0) scale(1.10); }
+}
+
+/* Interactive dot-matrix backdrop (sits above the aurora, behind content) */
+#bgDots {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: block;
 }
 
 img, svg { display: block; max-width: 100%; }
@@ -859,6 +889,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
  <body>
 
+ <canvas id="bgDots" aria-hidden="true"></canvas>
+
  <header class="nav" id="siteNav">
    <div class="container nav_inner">
 
@@ -1372,6 +1404,169 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     var items = marqueeTrack.innerHTML;
     marqueeTrack.innerHTML = items + items;
   }
+
+  /* Interactive dot-matrix "mahmud" backdrop */
+  (function initDots() {
+    var canvas = document.getElementById('bgDots');
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var TAU = Math.PI * 2;
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var W = 0, H = 0, dots = [], t = 0;
+    var pointer = { x: -1e5, y: -1e5, active: false };
+    var hotRadius = 50, hr2 = hotRadius * hotRadius;
+    var gold = '#d4af37', green = '#4fd18b';
+
+    function setPalette() {
+      var light = document.documentElement.getAttribute('data-theme') === 'light';
+      if (light) { gold = '#b08a2e'; green = '#14724b'; }
+      else       { gold = '#d4af37'; green = '#4fd18b'; }
+    }
+
+    // Drive the aurora background with pointer/touch/scroll movement
+    function setShift(nx, ny) {
+      var el = document.documentElement.style;
+      el.setProperty('--ax', (nx * 40).toFixed(1) + 'px');
+      el.setProperty('--ay', (ny * 40).toFixed(1) + 'px');
+    }
+
+    function build() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var off = document.createElement('canvas');
+      off.width = W;
+      off.height = H;
+      var octx = off.getContext('2d');
+      var size = Math.min(W * 0.22, H * 0.30, 220);
+      octx.fillStyle = '#fff';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.font = '700 ' + size + 'px system-ui, -apple-system, "Segoe UI", Arial, sans-serif';
+      if ('letterSpacing' in octx) octx.letterSpacing = Math.round(size * 0.06) + 'px';
+      octx.fillText('mahmud', W / 2, H / 2);
+
+      var img = octx.getImageData(0, 0, W, H).data;
+      var gap = Math.max(3, Math.round(size * 0.03));
+      dots = [];
+      for (var y = 0; y < H; y += gap) {
+        for (var x = 0; x < W; x += gap) {
+          if (img[(y * W + x) * 4 + 3] > 130) {
+            dots.push({ bx: x, by: y, ph: x * 0.013 + y * 0.017 });
+          }
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      t += 0.016;
+
+      // Animated, movement-aware gradient (moves on its own, even with no input)
+      var ang = t * 0.28;
+      var rad = Math.max(W, H) * 0.65;
+      var cxo = W * (0.5 + 0.10 * Math.sin(t * 0.35));
+      var cyo = H * (0.5 + 0.10 * Math.cos(t * 0.28));
+      var gx0 = cxo - Math.cos(ang) * rad;
+      var gy0 = cyo - Math.sin(ang) * rad;
+      var gx1 = cxo + Math.cos(ang) * rad;
+      var gy1 = cyo + Math.sin(ang) * rad;
+      var g = ctx.createLinearGradient(gx0, gy0, gx1, gy1);
+      var mid = 0.5 + 0.28 * Math.sin(t * 0.6);
+      if (pointer.active) mid += (pointer.x / (W || 1) - 0.5) * 0.22;
+      mid = Math.max(0.18, Math.min(0.82, mid));
+      g.addColorStop(0, gold);
+      g.addColorStop(mid, green);
+      g.addColorStop(1, gold);
+
+      ctx.beginPath();
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        var x = d.bx + Math.sin(t * 1.2 + d.ph) * 0.5;
+        var y = d.by + Math.cos(t * 1.1 + d.ph) * 0.5;
+        var r = 0.9;
+        if (pointer.active) {
+          var dx = x - pointer.x, dy = y - pointer.y, dist2 = dx * dx + dy * dy;
+          if (dist2 < hr2) {
+            var dist = Math.sqrt(dist2) || 0.001;
+            var f = 1 - dist / hotRadius;
+            x += (dx / dist) * f * 16;
+            y += (dy / dist) * f * 16;
+          }
+        }
+        ctx.moveTo(x + r, y);
+        ctx.arc(x, y, r, 0, TAU);
+      }
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    function tick() {
+      draw();
+      requestAnimationFrame(tick);
+    }
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(build, 180);
+    });
+
+    window.addEventListener('pointermove', function (e) {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.active = true;
+      setShift(e.clientX / (W || 1) * 2 - 1, e.clientY / (H || 1) * 2 - 1);
+    }, { passive: true });
+    window.addEventListener('pointerleave', function () {
+      pointer.active = false;
+      setShift(0, 0);
+    });
+
+    var touchTimer;
+    window.addEventListener('touchmove', function (e) {
+      if (e.touches[0]) {
+        pointer.x = e.touches[0].clientX;
+        pointer.y = e.touches[0].clientY;
+        pointer.active = true;
+        setShift(pointer.x / (W || 1) * 2 - 1, pointer.y / (H || 1) * 2 - 1);
+        clearTimeout(touchTimer);
+        touchTimer = setTimeout(function () { pointer.active = false; }, 900);
+      }
+    }, { passive: true });
+
+    var scrollTimer;
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY;
+      pointer.x = W * (0.5 + 0.34 * Math.sin(y * 0.006));
+      pointer.y = H * (0.5 + 0.30 * Math.cos(y * 0.005));
+      pointer.active = true;
+      setShift(0.34 * Math.sin(y * 0.006), 0.30 * Math.cos(y * 0.005));
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(function () { pointer.active = false; }, 700);
+    }, { passive: true });
+
+    if (window.MutationObserver) {
+      new MutationObserver(setPalette).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+      });
+    }
+
+    setPalette();
+    build();
+    if (reduceMotion) draw();
+    else requestAnimationFrame(tick);
+  })();
 
 })();
 </script>
