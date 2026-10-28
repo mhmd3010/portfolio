@@ -1123,6 +1123,66 @@ html.modal-open { overflow: hidden; }
   width: 1.5rem;
   height: 1.5rem;
 }
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 640px)  { .shop-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px)  { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.shop-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.shop-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-border);
+  box-shadow: var(--glass-shadow-hover);
+}
+.shop-card_tag {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+.shop-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+.shop-card_desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+.shop-card_foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.shop-card_price {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--accent);
+}
 </style>
 </head>
 
@@ -1136,6 +1196,7 @@ html.modal-open { overflow: hidden; }
      <nav class="nav_links" aria-label="Primary">
        <a href="#about">About</a>
        <a href="#services">Services</a>
+       <a href="#shop">Products</a>
        <a href="#skills">Skills</a>
        <a href="#projects">Projects</a>
        <a href="#contact">Contact</a>
@@ -1168,6 +1229,7 @@ html.modal-open { overflow: hidden; }
  <div class="mobile-menu" id="mobileMenu">
    <a href="#about">About</a>
    <a href="#services">Services</a>
+   <a href="#shop">Products</a>
    <a href="#skills">Skills</a>
    <a href="#projects">Projects</a>
    <a href="#contact">Contact</a>
@@ -1308,6 +1370,16 @@ html.modal-open { overflow: hidden; }
         </article>
 
       </div>
+    </div>
+  </section>
+
+  <section class="section" id="shop">
+    <div class="container">
+      <div class="section_head reveal">
+        <h2 class="section_title">Shop</h2>
+        <p class="section_intro">Pick one, pay, then send your proof on Telegram or WhatsApp.</p>
+      </div>
+      <div class="shop-grid reveal" id="shopGrid"></div>
     </div>
   </section>
 
@@ -1985,6 +2057,57 @@ html.modal-open { overflow: hidden; }
   });
   window.addEventListener('hashchange', sync);
   sync();
+})();
+</script>
+
+<script>
+/* ADD PRODUCTS HERE: copy one block, edit it. Leave link empty for "Ask". */
+var PRODUCTS = [
+  {
+    tag: 'Plugin',
+    name: 'Data Usage',
+    desc: 'A real-time, reboot-safe session tracking and bandwidth monitoring plugin for MikroTik PPPoE and Hotspot networks',
+    price: 'BDT 5000',
+    link: 'https://dash.zinipay.com/mahmud/product/33f5c46e-edde-4774-b6eb-b5cd73cfdadb'
+  },
+  {
+    tag: 'Service',
+    name: 'Mikrotik Security',
+    desc: 'Firewall rules, secured access and service lockdown for your RouterOS, so it stays protected.',
+    price: 'BDT 2500',
+    link: 'https://dash.zinipay.com/mahmud/product/33f5c46e-edde-4774-b6eb-b5cd73cfdadb'
+  }
+];
+
+(function () {
+  var grid = document.getElementById('shopGrid');
+  if (!grid) return;
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text) n.textContent = text;
+    return n;
+  }
+
+  PRODUCTS.forEach(function (p) {
+    var card = el('article', 'shop-card');
+    card.appendChild(el('p', 'shop-card_tag', p.tag));
+    card.appendChild(el('h3', '', p.name));
+    card.appendChild(el('p', 'shop-card_desc', p.desc));
+
+    var foot = el('div', 'shop-card_foot');
+    foot.appendChild(el('span', 'shop-card_price', p.price));
+
+    var btn = el('a', 'btn btn--primary', p.link ? 'Buy' : 'Ask');
+    btn.href = p.link || 'https://t.me/mhmd_3010';
+    btn.target = '_blank';
+    btn.rel = 'noopener noreferrer';
+    foot.appendChild(btn);
+
+    card.appendChild(foot);
+    grid.appendChild(card);
+  });
 })();
 </script>
 
