@@ -884,6 +884,54 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     transition: none;
   }
 }
+.service-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 560px) {
+  .service-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 960px) {
+  .service-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.service-card {
+  padding: 1.5rem;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-border);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.service-card .ph {
+  font-size: 1.75rem;
+  color: var(--accent);
+  margin-bottom: 0.875rem;
+}
+
+.service-card h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.service-card p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
 </style>
 </head>
 
@@ -896,6 +944,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
      <nav class="nav_links" aria-label="Primary">
        <a href="#about">About</a>
+       <a href="#services">Services</a>
        <a href="#skills">Skills</a>
        <a href="#projects">Projects</a>
        <a href="#contact">Contact</a>
@@ -927,6 +976,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
  <div class="mobile-menu" id="mobileMenu">
    <a href="#about">About</a>
+   <a href="#services">Services</a>
    <a href="#skills">Skills</a>
    <a href="#projects">Projects</a>
    <a href="#contact">Contact</a>
@@ -967,9 +1017,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
       <p class="hero_title">Full-stack developer &amp; network engineer</p>
 
       <p class="hero_pitch">
-        I build the software ISPs run their business on, and keep the
-        networks underneath it online. PHP, Python and Go on one side;
-        MikroTik, OSPF and fiber on the other.
+        One engineer for your whole ISP or WISP stack: network, servers, firewall,
+        billing and payments. 30+ projects across 6 countries, from zero to live.
       </p>
 
       <p class="hero_location">
@@ -978,7 +1027,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
       </p>
 
       <div class="hero_cta">
-        <a href="#projects" class="btn btn--primary">See my work</a>
+        <a href="#projects" class="btn btn--primary">My works</a>
         <a href="#contact" class="link-arrow">Get in touch</a>
       </div>
 
@@ -994,39 +1043,80 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
       <div class="about-copy reveal">
         <p>
-          I'm Mahmud. <strong>Software for ISPs and WISPs</strong> is the job title, but a
-          good chunk of my week is spent in network configs, not code editors.
+          I work with <strong>ISPs running PPPoE networks</strong> and
+          <strong>WISPs running hotspot networks</strong>. 30+ projects across
+          Kenya, Tanzania, Uganda, Saudi Arabia, Canada and Bangladesh.
         </p>
 
         <p>
-          On the billing side, two separate things: custom billing system I
-          built from scratch, and a long list of plugins and payment gateway
-          integrations for <strong>PHPNuxBill</strong> - OLT management,
-          data usage tracking, advance hotspot system, reward and loyalty system, 
-          <strong>bKash, PayPal, Stripe, Crypto,</strong> etc
-          handful of other local and global payment solutions, both
-          for both PHPNuxBill and its hotspot system.
-          <strong>PHP, Python, Go</strong>, whatever the langs needs.
+          Most projects start from nothing and go live: <strong>network, servers,
+          firewall, billing, payment gateways and domain</strong>, set up end to end.
         </p>
 
         <p>
-          On the network side its EPON, GPON, XPON or any other
-          vendor depending on the deployment. <strong>MikroTik RouterOS,
-          Cisco, pfSense</strong>. Multi-WAN failover, OLT/ONU configuration, VLANs,
-          monitoring, etc. <strong>OSPF, BGP, RSTP</strong> and other routing protocols.
-          Creating and managing network infrastructure for ISPs and WISPs from scratch, 
-          including fiber and wireless networks, and ensuring their smooth operation.
+          <strong>Network:</strong> MikroTik RouterOS, Cisco, pfSense. EPON, GPON and
+          XPON OLT/ONU setup, OSPF, BGP, RSTP, VLANs, multi-WAN failover and monitoring,
+          for fiber and wireless networks.
         </p>
 
         <p>
-          Been doing this for a few years now. Most of what I've learned came from
-          a billing bug turning out to be a network problem, or the other way
-          around. Backend and networking are my comfort zone.
+          <strong>Servers &amp; security:</strong> Linux servers, firewalls and
+          hardening for billing, hotspot and RADIUS systems.
         </p>
 
-        <p>Frontend I leave to people who actually enjoy it.</p>
+        <p>
+          <strong>Billing &amp; custom work:</strong> <strong>PHPNuxBill</strong>
+          plugins and payment gateways (<strong>Stripe, PayPal, crypto</strong>
+          and local options), hotspot systems and login templates, OLT management,
+          data usage tracking, reward and loyalty systems, and fixes for devices like
+          smart TVs can't open captive portal. <strong>PHP, Python, Rust or Go</strong>, whatever the
+          job needs.
+        </p>
+
+        <p>
+          Most of what I know came from a billing bug that turned out to be a network
+          problem, or the other way around. I keep frontends simple and fast.
+        </p>
       </div>
 
+    </div>
+  </section>
+
+  <section class="section" id="services">
+    <div class="container">
+
+      <div class="section_head reveal">
+        <h2 class="section_title">What I do</h2>
+        <p class="section_intro">From bare site to live ISP or WISP, handled by one person.</p>
+      </div>
+
+      <div class="service-grid">
+
+        <article class="service-card reveal">
+          <i class="ph ph-network" aria-hidden="true"></i>
+          <h3>Network</h3>
+          <p>MikroTik, Cisco, EPON/GPON/XPON, OSPF, BGP, VLANs, multi-WAN failover.</p>
+        </article>
+
+        <article class="service-card reveal">
+          <i class="ph ph-hard-drives" aria-hidden="true"></i>
+          <h3>Servers &amp; Firewall</h3>
+          <p>Linux servers, pfSense and MikroTik firewalls, hardening, monitoring.</p>
+        </article>
+
+        <article class="service-card reveal">
+          <i class="ph ph-receipt" aria-hidden="true"></i>
+          <h3>Billing</h3>
+          <p>PHPNuxBill for PPPoE and hotspot, OLT management, usage tracking, rewards.</p>
+        </article>
+
+        <article class="service-card reveal">
+          <i class="ph ph-credit-card" aria-hidden="true"></i>
+          <h3>Payments</h3>
+          <p>bKash, Stripe, PayPal, crypto and custom local gateways.</p>
+        </article>
+
+      </div>
     </div>
   </section>
 
@@ -1065,7 +1155,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     <div class="container">
 
       <div class="section_head">
-        <h2 class="section_title">My Works</h2>
+        <h2 class="section_title">Some of my works</h2>
       </div>
 
       <div class="work-list reveal">
